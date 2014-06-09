@@ -1,0 +1,20 @@
+# Eclipse IDE
+.*
+.settings/
+.metadata/
+
+# intelliJ IDE
+.idea
+
+#Java
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Target
+target
+.DS_Store
+
