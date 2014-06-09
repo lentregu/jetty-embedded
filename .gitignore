@@ -5,6 +5,7 @@
 
 # intelliJ IDE
 .idea
+*.iml
 
 #Java
 *.class
