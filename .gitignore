@@ -19,6 +19,6 @@
 target
 .DS_Store
 
-#Other
+# Others
+*.log
 *.zip
-
