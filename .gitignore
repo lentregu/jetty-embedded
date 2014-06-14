@@ -19,3 +19,6 @@
 target
 .DS_Store
 
+#Other
+*.zip
+
