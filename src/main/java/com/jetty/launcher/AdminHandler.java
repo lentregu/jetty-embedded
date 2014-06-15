@@ -42,10 +42,14 @@ public class AdminHandler extends AbstractHandler {
     }
 
 
-    public void startServer() throws Exception {
+    public void startServer() throws JettyLauncherException {
 
         if (!jettyServer.isRunning()) {
-            jettyServer.start();
+            try {
+                jettyServer.start();
+            } catch (Exception e) {
+               throw new JettyLauncherException(String.format("Error Starting Jetty: %s", e.getMessage()));
+            }
             this.mustBeRunning = true;
         }
     }

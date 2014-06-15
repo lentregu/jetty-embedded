@@ -1,15 +1,8 @@
-package com.jetty.launcher;
+package com.jetty.launcher.config;
 
 import java.io.*;
 import java.util.Properties;
 
-/**
- * Created with IntelliJ IDEA.
- * User: gfr
- * Date: 10/06/14
- * Time: 11:27
- * To change this template use File | Settings | File Templates.
- */
 public class ConfigReader {
 
     private Properties properties;
@@ -66,26 +59,38 @@ public class ConfigReader {
 
     }
 
-    public String get(String key) {
+//    public String get(String key) {
+//
+//        return properties.getProperty(key);
+//
+//    }
 
-        return properties.getProperty(key);
+    public int serverPort() {
 
-    }
+        String port = properties.getProperty("server.port", "8080");
 
-/*
-
-    public static void main(String[] args) throws IOException {
-
-        PropertiesReader propsReader = new PropertiesReader();
-
-        propsReader.loadProperties("config.properties");// load properties
-
-        String content = propsReader.get("test.address");// load value
-
-        System.out.println(content);// print it
+        return Integer.parseInt(port);
 
     }
 
-    */
+    public String serverLog() {
+
+        return properties.getProperty("server.log", "/tmp/jetty-launcher-yyyy_mm_dd.request.log");
+    }
+
+    public String serverLogTimeZone() {
+
+        return properties.getProperty("server.log.timezone", "UTC");
+    }
+
+    public String webAppWar() {
+
+        return properties.getProperty("webapp.war");
+    }
+
+    public String webAppContextPath() {
+
+        return properties.getProperty("webapp.contextPath","/");
+    }
 
 }
