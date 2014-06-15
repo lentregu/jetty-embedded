@@ -2,6 +2,8 @@ package com.jetty.launcher;
 
 
 
+import com.jetty.launcher.config.ConfigReader;
+import com.jetty.launcher.log.LogFormat;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.NCSARequestLog;
 import org.eclipse.jetty.server.handler.HandlerList;
@@ -16,37 +18,59 @@ public class JettyLauncher {
 
     private static ConfigReader config = ConfigReader.getInstance("config.properties");
 
+    private static LogFormat logFormat = LogFormat.getInstance();
+
     private static AdminHandler adminHandler = null;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args)  throws Exception {
 
         config.loadProperties();
         // Handler to manage the webapp
         WebAppContext webappHandler = new WebAppContext();
-        webappHandler.setContextPath(config.get("webapp.contextPath"));
-        webappHandler.setWar(config.get("webapp.war"));
+
+        if (config.webAppWar() != null) {
+            webappHandler.setWar(config.webAppWar());
+            webappHandler.setContextPath(config.webAppContextPath());
+        } else {
+            log.error("", new JettyLauncherException("Expected a webapp to start it"));
+            System.exit(-1);
+        }
 
         // I added this to show how to add access logs to an embedded server.
         RequestLogHandler requestLogHandler = new RequestLogHandler();
-        NCSARequestLog requestLog = new NCSARequestLog(config.get("server.log"));
+        NCSARequestLog requestLog = new NCSARequestLog(config.serverLog());
         requestLog.setAppend(true);
         requestLog.setExtended(true);
-        requestLog.setLogTimeZone(config.get("server.log.timezone"));
+        requestLog.setLogTimeZone(config.serverLogTimeZone());
         requestLogHandler.setRequestLog(requestLog);
         //requestLogHandler.setHandler(webappHandler);
 
         HandlerList handlerList = new HandlerList();
         handlerList.setHandlers(new Handler[] {webappHandler, requestLogHandler});
 
-        int serverPort = Integer.parseInt(config.get("server.port"));
+        int serverPort = config.serverPort();
         log.info(String.format("Starting Jetty on port %d", serverPort));
 
         adminHandler = new AdminHandler(serverPort);
         adminHandler.setHandlerList(handlerList);
         do {
-             log.info("Arrancamos Jetty");
-             adminHandler.startServer();
-             adminHandler.joinServer();
+
+            try {
+                adminHandler.startServer();
+                if (!webappHandler.isAvailable()) {
+                    //log.error(String.format("Can't load the webapp: %s", webappHandler.getWar()));
+                    log.error("Can't load the webapp: {}, {}", webappHandler.getWar());
+                    log.error(logFormat.format("esto", "es", "una", "prueba"), "esto", "es", "una", "prueba");
+                    log.error(logFormat.format("est"), "OTRA PRUEBA");
+                    log.error(logFormat.format("est","MAS"), "OTRA PRUEBA", "MAS");
+                    log.error(String.format("Prueba formateando objeto a string %s: ", new Integer(5234)));
+                    System.exit(-1);
+                }
+            } catch (JettyLauncherException e) {
+                log.error("Can't start the Jetty Server");
+                System.exit(-1);
+            }
+            adminHandler.joinServer();
         } while (adminHandler.isMustBeRunning());
 
     }
